@@ -7,7 +7,7 @@ import {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { MemosAction } from './Interfaces';
-import { apiRequest } from './GenericFunctions';
+import { apiRequest, apiUploadRequest } from './GenericFunctions';
 
 export class Memos implements INodeType {
 	description: INodeTypeDescription = {
@@ -248,6 +248,33 @@ export class Memos implements INodeType {
 					},
 				},
 			},
+			{
+				displayName: 'Include Binary File',
+				name: 'includeBinaryFile',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to upload and attach a binary file to the memo. AI Agent: set to true if you are provided a file to upload.',
+				displayOptions: {
+					show: {
+						operation: ['createMemo', 'updateMemo'],
+					},
+				},
+			},
+			{
+				displayName: 'Binary Property',
+				name: 'binaryPropertyName',
+				type: 'string',
+				default: 'data',
+				required: true,
+				description: 'Name of the binary property which contains the data for the file to be uploaded',
+				displayOptions: {
+					show: {
+						operation: ['createMemo', 'updateMemo'],
+						includeBinaryFile: [true],
+					},
+				},
+			},
+
 		],
 	};
 
@@ -321,6 +348,32 @@ export class Memos implements INodeType {
 					if (String(createPinned).toLowerCase() === 'true') {
 						createBody.pinned = true;
 					}
+
+					if (this.getNodeParameter('includeBinaryFile', index, false)) {
+						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', index) as string;
+						const item = items[index];
+						if (item.binary !== undefined && item.binary[binaryPropertyName] !== undefined) {
+							const binaryData = item.binary[binaryPropertyName];
+							const buffer = await this.helpers.getBinaryDataBuffer(index, binaryPropertyName);
+
+							const formData = {
+								file: {
+									value: buffer,
+									options: {
+										filename: binaryData.fileName || 'upload.bin',
+										contentType: binaryData.mimeType,
+									},
+								},
+							};
+
+							const uploadResponse = await apiUploadRequest.call(this, 'resources', formData);
+
+							if (uploadResponse && uploadResponse.name) {
+								createBody.resources = [{ name: uploadResponse.name }];
+							}
+						}
+					}
+
 					data = await apiRequest.call(this, 'POST', 'memos', createBody);
 					break;
 				case 'updateMemo':
@@ -347,6 +400,32 @@ export class Memos implements INodeType {
 					if (updatePinned !== null && updatePinned !== undefined && String(updatePinned).trim() !== '') {
 						updateBody.pinned = String(updatePinned).toLowerCase() === 'true';
 						updateMask.push('pinned');
+					}
+
+					if (this.getNodeParameter('includeBinaryFile', index, false)) {
+						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', index) as string;
+						const item = items[index];
+						if (item.binary !== undefined && item.binary[binaryPropertyName] !== undefined) {
+							const binaryData = item.binary[binaryPropertyName];
+							const buffer = await this.helpers.getBinaryDataBuffer(index, binaryPropertyName);
+
+							const formData = {
+								file: {
+									value: buffer,
+									options: {
+										filename: binaryData.fileName || 'upload.bin',
+										contentType: binaryData.mimeType,
+									},
+								},
+							};
+
+							const uploadResponse = await apiUploadRequest.call(this, 'resources', formData);
+
+							if (uploadResponse && uploadResponse.name) {
+								updateBody.resources = [{ name: uploadResponse.name }];
+								updateMask.push('resources');
+							}
+						}
 					}
 
 					const qsUpdate: IDataObject = {};
