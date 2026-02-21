@@ -261,18 +261,32 @@ export class Memos implements INodeType {
 				},
 			},
 			{
-				displayName: 'Binary Property',
-				name: 'binaryPropertyName',
-				type: 'string',
-				default: 'data',
-				required: true,
-				description: 'Name of the binary property which contains the data for the file to be uploaded',
+				displayName: 'Tool Options',
+				name: 'toolOptions',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
 				displayOptions: {
 					show: {
 						operation: ['createMemo', 'updateMemo'],
-						includeBinaryFile: [true],
 					},
 				},
+				options: [
+					{
+						displayName: 'Binary Property',
+						name: 'binaryPropertyName',
+						type: 'string',
+						default: 'data',
+						description: 'Name of the binary property which contains the data for the file to be uploaded. Usually "data".',
+					},
+					{
+						displayName: 'Origin Node Name',
+						name: 'binaryDataNodeName',
+						type: 'string',
+						default: '',
+						description: 'Optional name of the node where the binary data originated (e.g., "Telegram Trigger").',
+					},
+				],
 			},
 
 		],
@@ -350,8 +364,29 @@ export class Memos implements INodeType {
 					}
 
 					if (this.getNodeParameter('includeBinaryFile', index, false)) {
-						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', index) as string;
+						const toolOptions = this.getNodeParameter('toolOptions', index, {}) as IDataObject;
+						const binaryPropertyName = (toolOptions.binaryPropertyName as string) || 'data';
+						const previousNodeName = (toolOptions.binaryDataNodeName as string) || '';
 						const item = items[index];
+
+						// Attempt to dynamically fetch the binary data from the origin node if it's missing locally
+						if (!item.binary || !item.binary[binaryPropertyName]) {
+							if (previousNodeName) {
+								try {
+									const originItem: any = this.evaluateExpression(`{{ $items("${previousNodeName}")?.[0] }}`, index);
+									if (originItem && originItem.binary && originItem.binary[binaryPropertyName]) {
+										item.binary = item.binary || {};
+										item.binary[binaryPropertyName] = originItem.binary[binaryPropertyName];
+									} else {
+										throw new Error(`Could not find binary '${binaryPropertyName}' in origin node '${previousNodeName}'.`);
+									}
+								} catch (e: any) {
+									if (e.message.includes('Could not find binary')) throw e;
+									throw new Error(`Failed to evaluate expression for origin node '${previousNodeName}': ${e.message}`);
+								}
+							}
+						}
+
 						if (item.binary !== undefined && item.binary[binaryPropertyName] !== undefined) {
 							const binaryData = item.binary[binaryPropertyName];
 							const buffer = await this.helpers.getBinaryDataBuffer(index, binaryPropertyName);
@@ -399,8 +434,29 @@ export class Memos implements INodeType {
 					}
 
 					if (this.getNodeParameter('includeBinaryFile', index, false)) {
-						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', index) as string;
+						const toolOptions = this.getNodeParameter('toolOptions', index, {}) as IDataObject;
+						const binaryPropertyName = (toolOptions.binaryPropertyName as string) || 'data';
+						const previousNodeName = (toolOptions.binaryDataNodeName as string) || '';
 						const item = items[index];
+
+						// Attempt to dynamically fetch the binary data from the origin node if it's missing locally
+						if (!item.binary || !item.binary[binaryPropertyName]) {
+							if (previousNodeName) {
+								try {
+									const originItem: any = this.evaluateExpression(`{{ $items("${previousNodeName}")?.[0] }}`, index);
+									if (originItem && originItem.binary && originItem.binary[binaryPropertyName]) {
+										item.binary = item.binary || {};
+										item.binary[binaryPropertyName] = originItem.binary[binaryPropertyName];
+									} else {
+										throw new Error(`Could not find binary '${binaryPropertyName}' in origin node '${previousNodeName}'.`);
+									}
+								} catch (e: any) {
+									if (e.message.includes('Could not find binary')) throw e;
+									throw new Error(`Failed to evaluate expression for origin node '${previousNodeName}': ${e.message}`);
+								}
+							}
+						}
+
 						if (item.binary !== undefined && item.binary[binaryPropertyName] !== undefined) {
 							const binaryData = item.binary[binaryPropertyName];
 							const buffer = await this.helpers.getBinaryDataBuffer(index, binaryPropertyName);
