@@ -7,7 +7,7 @@ import {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { MemosAction } from './Interfaces';
-import { apiRequest, apiUploadRequest } from './GenericFunctions';
+import { apiRequest } from './GenericFunctions';
 
 export class Memos implements INodeType {
 	description: INodeTypeDescription = {
@@ -356,17 +356,13 @@ export class Memos implements INodeType {
 							const binaryData = item.binary[binaryPropertyName];
 							const buffer = await this.helpers.getBinaryDataBuffer(index, binaryPropertyName);
 
-							const formData = {
-								file: {
-									value: buffer,
-									options: {
-										filename: binaryData.fileName || 'upload.bin',
-										contentType: binaryData.mimeType,
-									},
-								},
+							const payload = {
+								filename: binaryData.fileName || 'upload.bin',
+								type: binaryData.mimeType,
+								content: buffer.toString('base64'),
 							};
 
-							const uploadResponse = await apiUploadRequest.call(this, 'resources', formData);
+							const uploadResponse = await apiRequest.call(this, 'POST', 'attachments', payload);
 
 							if (uploadResponse && uploadResponse.name) {
 								createBody.resources = [{ name: uploadResponse.name }];
@@ -409,17 +405,13 @@ export class Memos implements INodeType {
 							const binaryData = item.binary[binaryPropertyName];
 							const buffer = await this.helpers.getBinaryDataBuffer(index, binaryPropertyName);
 
-							const formData = {
-								file: {
-									value: buffer,
-									options: {
-										filename: binaryData.fileName || 'upload.bin',
-										contentType: binaryData.mimeType,
-									},
-								},
+							const payload = {
+								filename: binaryData.fileName || 'upload.bin',
+								type: binaryData.mimeType,
+								content: buffer.toString('base64'),
 							};
 
-							const uploadResponse = await apiUploadRequest.call(this, 'resources', formData);
+							const uploadResponse = await apiRequest.call(this, 'POST', 'attachments', payload);
 
 							if (uploadResponse && uploadResponse.name) {
 								updateBody.resources = [{ name: uploadResponse.name }];
