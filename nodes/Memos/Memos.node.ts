@@ -365,7 +365,7 @@ export class Memos implements INodeType {
 							const uploadResponse = await apiRequest.call(this, 'POST', 'attachments', payload);
 
 							if (uploadResponse && uploadResponse.name) {
-								createBody.resources = [{ name: uploadResponse.name }];
+								createBody.attachments = [{ name: uploadResponse.name }];
 							}
 						}
 					}
@@ -414,8 +414,8 @@ export class Memos implements INodeType {
 							const uploadResponse = await apiRequest.call(this, 'POST', 'attachments', payload);
 
 							if (uploadResponse && uploadResponse.name) {
-								updateBody.resources = [{ name: uploadResponse.name }];
-								updateMask.push('resources');
+								updateBody.attachments = [{ name: uploadResponse.name }];
+								updateMask.push('attachments');
 							}
 						}
 					}
