@@ -149,7 +149,7 @@ export class Memos implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: 'row_status == "NORMAL"',
-				description: 'Filter expression (AIP-160). Examples: `tag == "work"`, `content.contains("test")`, or `visibility == "PRIVATE"`.',
+				description: 'Filter expression (AIP-160). For multiple conditions, use `&&` (AND) and `||` (OR). Do NOT use the words AND/OR. Examples: `visibility == "PRIVATE" && content.contains("test")`',
 				displayOptions: {
 					show: {
 						resource: ['memos'],
