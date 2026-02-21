@@ -52,8 +52,17 @@ export async function apiUploadRequest(
 			'User-Agent': 'n8n',
 		},
 		method: 'POST',
-		json: true,
 	};
 	options.formData = formData;
-	return this.helpers.httpRequestWithAuthentication.call(this, 'memosApi', options);
+
+	const response = await this.helpers.httpRequestWithAuthentication.call(this, 'memosApi', options);
+
+	try {
+		if (typeof response === 'string') {
+			return JSON.parse(response);
+		}
+		return response;
+	} catch (error) {
+		return response;
+	}
 }
