@@ -149,7 +149,7 @@ export class Memos implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: 'row_status == "NORMAL"',
-				description: 'Filter expression (AIP-160). For multiple conditions, use `&&` (AND) and `||` (OR). Do NOT use the words AND/OR. Examples: `visibility == "PRIVATE" && content.contains("test")`',
+				description: 'Filter expression (AIP-160). For multiple conditions, use `&&` (AND) and `||` (OR). Do NOT use the words AND/OR. Examples: `visibility == "PRIVATE" && content.contains("test")`. CRITICAL FOR AI: The Memos API DOES NOT support filtering by `create_time` or `update_time`. DO NOT use time-based filters here. Supported fields: visibility, content, pinned, creator, row_status.',
 				displayOptions: {
 					show: {
 						resource: ['memos'],
@@ -177,7 +177,7 @@ export class Memos implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
-				description: 'The resource name (e.g., memos/example123) or just the ID (e.g., example123). AI Agent: use listMemos to find IDs. If only ID is provided, "memos/" will be added automatically.',
+				description: 'The resource name (e.g., memos/example123) or just the ID (e.g., example123). If only ID is provided, "memos/" will be added automatically.',
 				hint: 'example123 or memos/example123',
 				displayOptions: {
 					show: {
@@ -205,7 +205,7 @@ export class Memos implements INodeType {
 				name: 'visibility',
 				type: 'string',
 				default: 'PRIVATE',
-				description: 'The visibility level of the memo. AI Agent: choose PUBLIC, WORKSPACE, or PRIVATE.',
+				description: 'The visibility level of the memo (PUBLIC, WORKSPACE, or PRIVATE).',
 				displayOptions: {
 					show: {
 						operation: ['createMemo'],
@@ -229,7 +229,7 @@ export class Memos implements INodeType {
 				name: 'updateVisibility',
 				type: 'string',
 				default: '',
-				description: 'The visibility level of the memo. AI Agent: choose PUBLIC, WORKSPACE, PRIVATE, or leave empty to skip updating.',
+				description: 'The visibility level of the memo (PUBLIC, WORKSPACE, PRIVATE). Leave empty to skip updating.',
 				displayOptions: {
 					show: {
 						operation: ['updateMemo'],
@@ -241,7 +241,7 @@ export class Memos implements INodeType {
 				name: 'updatePinned',
 				type: 'string',
 				default: '',
-				description: 'Whether the memo is pinned. AI Agent: choose true, false, or leave empty to skip updating.',
+				description: 'Whether the memo is pinned. Leave empty to skip updating.',
 				displayOptions: {
 					show: {
 						operation: ['updateMemo'],
@@ -253,7 +253,7 @@ export class Memos implements INodeType {
 				name: 'includeBinaryFile',
 				type: 'boolean',
 				default: false,
-				description: 'Whether to upload and attach a binary file to the memo. AI Agent: set to true if you are provided a file to upload.',
+				description: 'Whether to upload and attach a binary file to the memo. Set to true if a file is provided.',
 				displayOptions: {
 					show: {
 						operation: ['createMemo', 'updateMemo'],
