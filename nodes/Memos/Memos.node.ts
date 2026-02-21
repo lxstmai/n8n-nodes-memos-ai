@@ -377,12 +377,9 @@ export class Memos implements INodeType {
 									if (originItem && originItem.binary && originItem.binary[binaryPropertyName]) {
 										item.binary = item.binary || {};
 										item.binary[binaryPropertyName] = originItem.binary[binaryPropertyName];
-									} else {
-										throw new Error(`Could not find binary '${binaryPropertyName}' in origin node '${previousNodeName}'.`);
 									}
 								} catch (e: any) {
-									if (e.message.includes('Could not find binary')) throw e;
-									throw new Error(`Failed to evaluate expression for origin node '${previousNodeName}': ${e.message}`);
+									// Silently ignore so text memos can pass through
 								}
 							}
 						}
@@ -447,12 +444,9 @@ export class Memos implements INodeType {
 									if (originItem && originItem.binary && originItem.binary[binaryPropertyName]) {
 										item.binary = item.binary || {};
 										item.binary[binaryPropertyName] = originItem.binary[binaryPropertyName];
-									} else {
-										throw new Error(`Could not find binary '${binaryPropertyName}' in origin node '${previousNodeName}'.`);
 									}
 								} catch (e: any) {
-									if (e.message.includes('Could not find binary')) throw e;
-									throw new Error(`Failed to evaluate expression for origin node '${previousNodeName}': ${e.message}`);
+									// Silently ignore so text memos can pass through
 								}
 							}
 						}
