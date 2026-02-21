@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-base.memos",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Communication"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://www.usememos.com/docs/security/access-tokens"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://www.usememos.com/docs"
+			}
+		]
+	}
+}
